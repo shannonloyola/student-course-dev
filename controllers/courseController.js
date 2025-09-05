@@ -1,0 +1,56 @@
+const db = require('../config/db');
+
+// CREATE
+exports.createCourse = (req, res) => {
+  const { course_code, title, units } = req.body;
+  if (!course_code || !title) return res.status(400).json({ error: 'course_code and title are required' });
+
+  const sql = 'INSERT INTO courses (course_code, title, units) VALUES (?, ?, ?)';
+  db.query(sql, [course_code, title, units || 0], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Course created', id: result.insertId });
+  });
+};
+
+// READ ALL
+exports.getCourses = (req, res) => {
+  db.query('SELECT * FROM courses', (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+};
+
+// READ BY ID
+exports.getCourseById = (req, res) => {
+  const { id } = req.params;
+  db.query('SELECT * FROM courses WHERE id=?', [id], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (rows.length === 0) return res.status(404).json({ error: 'course not found' });
+    res.json(rows[0]);
+  });
+};
+
+// UPDATE
+exports.updateCourse = (req, res) => {
+  const { id } = req.params;
+  const { course_code, title, units } = req.body;
+  db.query(
+    'UPDATE courses SET course_code=?, title=?, units=? WHERE id=?',
+    [course_code, title, units || 0, id],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (result.affectedRows === 0) return res.status(404).json({ error: 'course not found' });
+      res.json({ message: 'Course updated' });
+    }
+  );
+};
+
+// DELETE
+exports.deleteCourse = (req, res) => {
+  const { id } = req.params;
+  db.query('DELETE FROM courses WHERE id=?', [id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'course not found' });
+    res.json({ message: 'Course deleted' });
+  });
+};
