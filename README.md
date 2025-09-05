@@ -30,6 +30,7 @@ npm run dev
 This starts the server on http://localhost:3000.
 
 > How to Run:
+
 Use npm run dev to start the server with nodemon.
 Use node server.js to run normally without watching for changes.
 
